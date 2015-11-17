@@ -9,6 +9,7 @@ import sys
 
 script, file_name = argv
 
+
 def showsome(searchfor):
   query = urllib.urlencode({'q': searchfor})
   url = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&%s' % query
@@ -34,35 +35,22 @@ def showsome(searchfor):
   else:
 	print "Something went catastrophically wrong."
 
-file_size = os.path.getsize(file_name)
 
+file_size = os.path.getsize(file_name)
 print "File size:"
 print file_size
 
 short_name = os.path.splitext(file_name)[0]
 
+first_id = None
 number = 0
 
-lang = languages[number]
-
-searchie = "site:opensubtitles.org/%s/subtitles %s" % (lang, file_size)
-
-first_id = showsome(searchie)
-
-if first_id is None:
-	print "Trying another language..."
-	number += 1
+while first_id is None and number < len(languages):
 	lang = languages[number]
 	searchie = "site:opensubtitles.org/%s/subtitles %s" % (lang, file_size)
-	print "Let's try that again."
 	first_id = showsome(searchie)
-	if first_id is None:
-		sys.exit()
-	else:
-		print "Subtitles in English? Fine."
-else:
-	print "Great, moving on..."
-
+	number += 1
+	
 url = 'http://dl.opensubtitles.org/%s/download/sub/%s' % (lang, first_id)
  
 print "Downloading..."
@@ -105,5 +93,7 @@ for item in mixed_bag:
 		
 print "Cleaning up..."
 os.remove('subs.zip')
+os.remove('subconfig.pyc')
 
 print "Done!"
+	
