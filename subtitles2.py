@@ -1,5 +1,6 @@
 from sys import argv
 from subconfig import languages
+from google import search
 
 import json
 import urllib
@@ -11,29 +12,20 @@ script, file_name = argv
 
 
 def showsome(searchfor):
-  query = urllib.urlencode({'q': searchfor})
-  url = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&%s' % query
-  search_response = urllib.urlopen(url)
-  search_results = search_response.read()
-  results = json.loads(search_results)
-  data = results['responseData']
-  hits = data['results']
-  if len(hits) == 0:
-	print "Oops, no results."
-	return
-  elif len(hits) > 0:
-  	print 'Top %d hits:' % len(hits)
-  	count = 0
-  	for h in hits: 
-  		count += 1
-  		print count, '-', h['url']  
-  	print "Select one:"
-  	select = raw_input("> ")
-  	select = int(select) - 1
-  	address = str(hits[select]['url'])
-  	return int(filter(str.isdigit, address))
-  else:
-	print "Something went catastrophically wrong."
+  count = 0
+  listem = []
+  for url in search(searchfor, stop=5):
+  	count += 1
+  	print count, '-', url
+  	listem.append(url)
+  if count == 0:
+  	print "Oops, no results."
+  	return
+  print "Select one:"
+  select = raw_input("> ")
+  select = int(select) - 1
+  address = str(listem[select])
+  return int(filter(str.isdigit, address))
 
 
 file_size = os.path.getsize(file_name)
